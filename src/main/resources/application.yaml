@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: SliceUploadDemo
+
+minio:
+  endpoint: ${oss.endpoint}
+  accessKey: ${oss.accessKey}
+  secretKey: ${oss.secretKey}
+  bucketName: ${oss.bucketName}
+  downloadUri: ${oss.downloadUri}
+  path: ${oss.path}

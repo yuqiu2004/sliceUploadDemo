@@ -12,9 +12,7 @@ import org.yuqiu.pojo.UploadResult;
 import org.yuqiu.pojo.UploadVO;
 import org.yuqiu.utils.MinioUtil;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class UploadService {
@@ -51,12 +49,23 @@ public class UploadService {
         // 通过uploadId获取上传的进度
         List<Integer> list = getUploadedList(uploadId, objectName);
         // 返回uploadId、上传进度
-        HashMap<String, String> map = getUploadUrl(list);
+        List<Integer> toUpload = new ArrayList<>();
+        list.sort(Comparator.naturalOrder());
+        int it = 1;
+        for (Integer i : list) {
+            while(it < i) {
+                toUpload.add(it);
+                it++;
+            }
+            it+=2;
+        }
+        // 只获取还未上传的分片以及对应的请求路径
+        HashMap<Integer, String> map = getUploadUrl(toUpload, objectName, uploadId);
         return new UploadVO(uploadId, objectName, map);
     }
 
-    private HashMap<String, String> getUploadUrl(List<Integer> list) {
-        return null;
+    private HashMap<Integer, String> getUploadUrl(List<Integer> list, String objectName, String uploadId) {
+        return minioUtil.getUploadUrl(list, objectName, uploadId);
     }
 
     private List<Integer> getUploadedList(String uploadId, String objectName) {

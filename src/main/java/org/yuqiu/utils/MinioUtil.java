@@ -2,8 +2,10 @@ package org.yuqiu.utils;
 
 import com.google.common.collect.Multimap;
 import io.minio.CreateMultipartUploadResponse;
+import io.minio.GetPresignedObjectUrlArgs;
 import io.minio.ListPartsResponse;
 import io.minio.errors.*;
+import io.minio.http.Method;
 import io.minio.messages.Part;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Component;
@@ -58,5 +60,26 @@ public class MinioUtil {
             throw new RuntimeException(e);
         }
         return list;
+    }
+
+    public HashMap<Integer, String> getUploadUrl(List<Integer> list, String objectName, String uploadId) {
+        HashMap<Integer, String> map = new HashMap<>();
+        HashMap<String, String> params = new HashMap<>();
+        params.put("uploadId", uploadId);
+        list.forEach( i -> {
+            params.put("partNumber", i.toString());
+            try {
+                String presignedObjectUrl = minioClient.getPresignedObjectUrl(GetPresignedObjectUrlArgs.builder()
+                        .method(Method.PUT)
+                        .bucket(minioProperties.getBucketName())
+                        .object(objectName)
+                        .extraQueryParams(params)
+                        .expiry(60 * 60 * 24)
+                        .build());
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
+        return map;
     }
 }

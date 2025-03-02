@@ -15,16 +15,22 @@ public class UploadController {
 
     /**
      * 初始化上传并获取上传进度
-     * @param uploadDTO
-     * @return
+     * @param uploadDTO 上传dto
+     * @return 返回封装内容 预上传路径
      */
     @PostMapping("/prepare")
     public Result prepare(@RequestBody UploadDTO uploadDTO) {
         return Result.success(uploadService.prepare(uploadDTO));
     }
 
+    /**
+     * 上传分片合并
+     * @param uploadId
+     * @param objectName
+     * @return
+     */
     @GetMapping("/complete")
-    public Result complete(@RequestParam String fileHash) {
-        return Result.success(uploadService.complete(fileHash));
+    public Result complete(@RequestParam String uploadId, @RequestParam String objectName) {
+        return Result.success(uploadService.complete(uploadId, objectName));
     }
 }

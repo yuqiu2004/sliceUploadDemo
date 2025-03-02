@@ -4,7 +4,7 @@ import com.google.common.collect.Multimap;
 import io.minio.CreateMultipartUploadResponse;
 import io.minio.GetPresignedObjectUrlArgs;
 import io.minio.ListPartsResponse;
-import io.minio.errors.*;
+import io.minio.ObjectWriteResponse;
 import io.minio.http.Method;
 import io.minio.messages.Part;
 import jakarta.annotation.Resource;
@@ -12,14 +12,7 @@ import org.springframework.stereotype.Component;
 import org.yuqiu.conf.MinioProperties;
 import org.yuqiu.conf.SliceMinioClient;
 
-import java.io.IOException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.stream.Collectors;
+import java.util.*;
 
 @Component
 public class MinioUtil {
@@ -81,5 +74,31 @@ public class MinioUtil {
             }
         });
         return map;
+    }
+
+    public void completeMultipartUpload(String uploadId, String objectName) {
+        try {
+            ListPartsResponse parts = minioClient.listParts(
+                        minioProperties.getBucketName(),
+                        null,
+                        objectName,
+                        null,
+                        null,
+                        uploadId,
+                        null,
+                        null
+                );
+            minioClient.completeMultipartUpload(
+                    minioProperties.getBucketName(),
+                    "",
+                    objectName,
+                    uploadId,
+                    parts.result().partList().toArray(Part[]::new),
+                    null,
+                    null
+            );
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

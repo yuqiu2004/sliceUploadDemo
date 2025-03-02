@@ -40,7 +40,7 @@ public class UploadService {
         if (StringUtil.isNullOrEmpty(uploadId)) {
             // 创建分片上传请求 返回上传的路径
             Multimap<String, String> headers = HashMultimap.create();
-            headers.put("Content-Type", "video/mp4");
+            headers.put("Content-Type", uploadDTO.getContentType());
             Map<String, String> map = minioUtil.createMultipartUpload("", uploadDTO.getFileName(), headers, null);
             uploadId = map.get("uploadId");
             objectName = map.get("objectName");
@@ -77,7 +77,8 @@ public class UploadService {
     }
 
 
-    public UploadResult complete(String fileHash) {
+    public UploadResult complete(String uploadId, String objectName) {
+        minioUtil.completeMultipartUpload(uploadId, objectName);
         return new UploadResult();
     }
 }

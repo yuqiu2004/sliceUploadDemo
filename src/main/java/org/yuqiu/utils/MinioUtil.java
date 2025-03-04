@@ -5,6 +5,7 @@ import io.minio.CreateMultipartUploadResponse;
 import io.minio.GetPresignedObjectUrlArgs;
 import io.minio.ListPartsResponse;
 import io.minio.ObjectWriteResponse;
+import io.minio.errors.*;
 import io.minio.http.Method;
 import io.minio.messages.Part;
 import jakarta.annotation.Resource;
@@ -12,6 +13,9 @@ import org.springframework.stereotype.Component;
 import org.yuqiu.conf.MinioProperties;
 import org.yuqiu.conf.SliceMinioClient;
 
+import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
 @Component
@@ -97,6 +101,19 @@ public class MinioUtil {
                     null,
                     null
             );
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void abortMultipartUpload(String uploadId, String objectName) {
+        try {
+            minioClient.abortMultipartUpload(minioProperties.getBucketName(),
+                    null,
+                    objectName,
+                    uploadId,
+                    null,
+                    null);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

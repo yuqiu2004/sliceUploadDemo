@@ -81,4 +81,9 @@ public class UploadService {
         minioUtil.completeMultipartUpload(uploadId, objectName);
         return new UploadResult();
     }
+
+    public String cancel(String uploadId, String objectName) {
+        minioUtil.abortMultipartUpload(uploadId, objectName);
+        return "CANCEL SUCCESS";
+    }
 }

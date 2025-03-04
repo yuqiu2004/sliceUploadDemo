@@ -33,4 +33,9 @@ public class UploadController {
     public Result complete(@RequestParam String uploadId, @RequestParam String objectName) {
         return Result.success(uploadService.complete(uploadId, objectName));
     }
+
+    @GetMapping("/cancel")
+    public Result cancel(@RequestParam String uploadId, @RequestParam String objectName) {
+        return Result.success(uploadService.cancel(uploadId, objectName));
+    }
 }

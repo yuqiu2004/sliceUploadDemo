@@ -1,10 +1,7 @@
 package org.yuqiu.conf;
 
 import com.google.common.collect.Multimap;
-import io.minio.CreateMultipartUploadResponse;
-import io.minio.ListPartsResponse;
-import io.minio.MinioClient;
-import io.minio.ObjectWriteResponse;
+import io.minio.*;
 import io.minio.errors.*;
 import io.minio.messages.Part;
 import java.io.IOException;
@@ -81,5 +78,25 @@ public class SliceMinioClient extends MinioClient {
             throws NoSuchAlgorithmException, InsufficientDataException, IOException, ServerException, ErrorResponseException,
             InvalidKeyException, XmlParserException, InvalidResponseException, InternalException {
         return super.listParts(bucketName, region, objectName, maxParts, partNumberMarker, uploadId, extraHeaders, extraQueryParams);
+    }
+
+    /**
+     * 清理分片
+     * @param bucketName
+     * @param region
+     * @param objectName
+     * @param uploadId
+     * @param extraHeaders
+     * @param extraQueryParams
+     */
+    public AbortMultipartUploadResponse abortMultipartUpload(String bucketName,
+                                                             String region,
+                                                             String objectName,
+                                                             String uploadId,
+                                                             Multimap<String, String> extraHeaders,
+                                                             Multimap<String, String> extraQueryParams)
+            throws NoSuchAlgorithmException, InsufficientDataException, IOException, InvalidKeyException, ServerException,
+            XmlParserException, ErrorResponseException, InternalException, InvalidResponseException {
+        return super.abortMultipartUpload(bucketName, region, objectName, uploadId, extraHeaders, extraQueryParams);
     }
 }

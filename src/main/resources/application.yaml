@@ -1,7 +1,8 @@
 spring:
   application:
     name: SliceUploadDemo
-
+  profiles:
+    active: dev
 minio:
   endpoint: ${oss.endpoint}
   accessKey: ${oss.accessKey}

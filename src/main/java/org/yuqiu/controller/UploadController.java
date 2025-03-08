@@ -8,6 +8,7 @@ import org.yuqiu.pojo.UploadDTO;
 
 @RestController
 @RequestMapping("/upload/multipart")
+@CrossOrigin
 public class UploadController {
 
     @Resource
@@ -37,5 +38,10 @@ public class UploadController {
     @GetMapping("/cancel")
     public Result cancel(@RequestParam String uploadId, @RequestParam String objectName) {
         return Result.success(uploadService.cancel(uploadId, objectName));
+    }
+
+    @GetMapping("/test")
+    public Result test(String str) {
+        return Result.success("hello, " + str);
     }
 }

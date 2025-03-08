@@ -50,7 +50,7 @@ public class UploadService {
         List<Integer> list = getUploadedList(uploadId, objectName);
         // 返回uploadId、上传进度
         List<Integer> toUpload = new ArrayList<>();
-        list.sort(Comparator.naturalOrder());
+        if (!list.isEmpty()) list.sort(Comparator.naturalOrder());
         int it = 1;
         for (Integer i : list) {
             while(it < i) {
@@ -59,6 +59,7 @@ public class UploadService {
             }
             it+=2;
         }
+        while(it <= uploadDTO.getTrunk()) toUpload.add(it++);
         // 只获取还未上传的分片以及对应的请求路径
         HashMap<Integer, String> map = getUploadUrl(toUpload, objectName, uploadId);
         return new UploadVO(uploadId, objectName, map);

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文件上传测试</title>
+</head>
+<body>
+    <input type="file" id="fileInput">
+    <button onclick="upload()">上传</button>
+    <button onclick="completeUpload()">合并</button>
+    <button onclick="cancelUpload()">取消</button>
+    <button onclick="handleTest()">测试</button>
+    
+    <script>
+        let uploadId = "";
+        let objectName = "";
+        let trunkMap = {};
+        const API_BASE_URL = "http://localhost:8080";
+        const CHUNK_SIZE = 4 * 1024 * 1024; // 4MB
+
+        async function upload() {
+            const fileInput = document.getElementById("fileInput");
+            if (!fileInput.files.length) {
+                alert("请选择一个文件");
+                return;
+            }
+            
+            const file = fileInput.files[0];
+            const trunk = Math.ceil(file.size / CHUNK_SIZE);
+            const fileReader = new FileReader();
+            
+            // 使用 Promise 来处理文件读取和哈希生成
+            fileReader.onload = async function() {
+                const fileHash = file.name
+                const uploadDTO = {
+                    fileName: file.name,
+                    fileHash: fileHash,
+                    trunk,
+                    contentType: file.type
+                };
+                
+                try {
+                    const response = await fetch(`${API_BASE_URL}/upload/multipart/prepare`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(uploadDTO)
+                    });
+                    
+                    const res = await response.json();
+                    uploadId = res.data.uploadId;
+                    objectName = res.data.objectName;
+                    trunkMap = res.data.trunkMap;
+                    console.log(res.data)
+                } catch (error) {
+                    console.error("上传失败:", error);
+                    alert("文件上传失败，请重试。");
+                }
+            };
+            
+            fileReader.readAsArrayBuffer(file);
+        }
+
+        function completeUpload() {
+            if (!uploadId || !objectName) {
+                alert("请先上传文件");
+                return;
+            }
+            
+            fetch(`${API_BASE_URL}/upload/multipart/complete?uploadId=${uploadId}&objectName=${objectName}`)
+                .then(() => alert("上传合并完成"));
+        }
+
+        function cancelUpload() {
+            if (!uploadId || !objectName) {
+                alert("请先上传文件");
+                return;
+            }
+            
+            fetch(`${API_BASE_URL}/upload/multipart/cancel?uploadId=${uploadId}&objectName=${objectName}`)
+                .then(() => {
+                    alert("上传已取消");
+                });
+        }
+        
+        function handleTest() {
+            fetch(`${API_BASE_URL}/upload/multipart/test?str=client`)
+                .then(response => response.json())
+                .then(res => {
+                    alert(res.data);
+                });
+        }
+    </script>
+</body>
+</html>

@@ -3,6 +3,15 @@
 [参考文章1](https://juejin.cn/post/7213275960900632632)
 [参考文章2](https://juejin.cn/post/7039554714077233189)
 
+## 项目结构
+
+1. front-end - html测试目录 直接打开 更改对应的接口地址即可测试
+2. src - 后端源代码目录
+   - 这里有一个地方需要注意 minio的配置项需要一个application-dev.yaml
+   - 或者直接将自己的配置明文写在application.yaml中
+   - 再或者可以写在环境变量中 （edit configuration中可以配置）
+3. 其他是常规的springboot项目文件 不做说明
+
 ## 处理思路
 
 1. 前端计算文件哈希 获取唯一标识 然后将文件切片 将切片数和文件哈希以及文件名封装 发送上传请求

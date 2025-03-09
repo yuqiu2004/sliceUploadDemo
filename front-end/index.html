@@ -7,17 +7,35 @@
 </head>
 <body>
     <input type="file" id="fileInput">
-    <button onclick="upload()">上传</button>
-    <button onclick="completeUpload()">合并</button>
+    <button onclick="upload()">请求上传</button>
+    <button onclick="uploadTrunks()">上传</button>
+    <button onclick="completeUpload()">请求合并</button>
     <button onclick="cancelUpload()">取消</button>
-    <button onclick="handleTest()">测试</button>
-    
+    <button onclick="handleTest()">测试接口</button>
+    <div>
+        <label for="progressBar">上传进度：</label>
+        <progress id="progressBar" value="0" max="100"></progress>
+        <span id="progressText">0%</span>
+    </div>
     <script>
         let uploadId = "";
         let objectName = "";
         let trunkMap = {};
         const API_BASE_URL = "http://localhost:8080";
-        const CHUNK_SIZE = 4 * 1024 * 1024; // 4MB
+        const CHUNK_SIZE = 5 * 1024 * 1024; // 4MB
+        let totalTrunk = 0;
+        let cnt = 0;
+        let file = null
+        let fileReader = null
+
+        function updateProgress() {
+            cnt++;
+            let progressBar = document.getElementById('progressBar')
+            let progressText = document.getElementById('progressText')
+            let p = cnt / totalTrunk * 100
+            progressBar.value = p
+            progressText.textContent = p + '%'
+        }
 
         async function upload() {
             const fileInput = document.getElementById("fileInput");
@@ -26,9 +44,10 @@
                 return;
             }
             
-            const file = fileInput.files[0];
-            const trunk = Math.ceil(file.size / CHUNK_SIZE);
-            const fileReader = new FileReader();
+            file = fileInput.files[0];
+            const trunk = Math.ceil(file.size / CHUNK_SIZE) - 1;
+            totalTrunk = trunk;
+            fileReader = new FileReader();
             
             // 使用 Promise 来处理文件读取和哈希生成
             fileReader.onload = async function() {
@@ -57,8 +76,42 @@
                     alert("文件上传失败，请重试。");
                 }
             };
-            
             fileReader.readAsArrayBuffer(file);
+        }
+
+        async function uploadTrunks() {
+            let map = new Map(Object.entries(trunkMap))
+            for (let i = 0; i < totalTrunk; i++) {
+                if (map.has(`${i+1}`)) {
+                    let start = i * CHUNK_SIZE
+                    let end = start + CHUNK_SIZE
+                    if (i == totalTrunk - 1) end = file.size
+                    let chunk = file.slice(start, end)
+                    let url = map.get(`${i+1}`)
+                    // console.log(url)
+                    fetch(url, {
+                        method: "PUT",
+                        headers: { "Content-Type": "application/octet-stream" },
+                        body: chunk
+                    })
+                    .then(response => updateProgress())
+                    .catch(e => {
+                        alert(e)
+                    })
+                }
+            }
+        }
+
+        async function uploadSimulation() {
+            totalTrunk = 19
+            for (i = 0; i < 19; i++) {
+                await sleep(500)
+                updateProgress()
+            }
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
         }
 
         function completeUpload() {

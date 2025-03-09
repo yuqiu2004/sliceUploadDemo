@@ -73,6 +73,7 @@ public class MinioUtil {
                         .extraQueryParams(params)
                         .expiry(60 * 60 * 24)
                         .build());
+                map.put(i, presignedObjectUrl);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

@@ -32,7 +32,12 @@ public class UploadController {
      */
     @GetMapping("/complete")
     public Result complete(@RequestParam String uploadId, @RequestParam String objectName) {
-        return Result.success(uploadService.complete(uploadId, objectName));
+        try {
+            uploadService.complete(uploadId, objectName);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return Result.success();
     }
 
     @GetMapping("/cancel")

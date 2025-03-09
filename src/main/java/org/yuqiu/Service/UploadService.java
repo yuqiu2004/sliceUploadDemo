@@ -78,9 +78,8 @@ public class UploadService {
     }
 
 
-    public UploadResult complete(String uploadId, String objectName) {
+    public void complete(String uploadId, String objectName) {
         minioUtil.completeMultipartUpload(uploadId, objectName);
-        return new UploadResult();
     }
 
     public String cancel(String uploadId, String objectName) {

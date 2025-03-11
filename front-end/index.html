@@ -209,11 +209,38 @@
                                 ` 
         }
 
+        async function uploadSingleFile() {
+            // directly upload whole file
+            // get presigned upload url
+            let url = ''
+            await fetch(`${API_BASE_URL}/upload/multipart/getUploadUrl?objectName=${file.name}&contentType=${file.type}`)
+                .then(response => response.json())
+                .then(res => {
+                    let data = res.data
+                    url = data.url
+                    objectName = data.objectName
+                })
+            // upload file
+            await fetch(url, {
+                        method: "PUT",
+                        headers: { "Content-Type": "application/octet-stream" },
+                        body: file
+                    })
+        }
+
         async function testSingleUpload() {
             if (!file) {
                 alert('please choose file to upload first')
                 return
             }
+            const startTime = performance.now()
+            await uploadSingleFile()
+            const endTime = performance.now()
+            // 显示运行结果
+            let output = document.getElementById('single-output')
+            output.textContent = `
+                                测试文件大小: ${file.size} 分片大小: ${CHUNK_SIZE} 上传时间: ${(endTime - startTime) / 1000}s
+                                ` 
         }
     </script>
 </body>

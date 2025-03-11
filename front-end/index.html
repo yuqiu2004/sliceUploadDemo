@@ -4,18 +4,55 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>文件上传测试</title>
+    <style>
+        .root {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            width: auto;
+            height: auto;
+            flex-wrap: wrap;
+        }
+
+        input, button {
+            min-width: 100px;
+            min-height: 100px;
+            margin-left: 20px;
+            margin-top: 20px;
+        }
+        
+        .progressDiv {
+            margin-top: 20px;
+        }
+
+        .output {
+            width: 100%;
+        }
+
+        .output > * {
+            margin-top: 50px;
+        }
+    </style>
 </head>
 <body>
     <input type="file" id="fileInput">
-    <button onclick="upload()">请求上传</button>
-    <button onclick="uploadTrunks()">上传</button>
-    <button onclick="completeUpload()">请求合并</button>
-    <button onclick="cancelUpload()">取消</button>
-    <button onclick="handleTest()">测试接口</button>
-    <div>
+    <div class="root">
+        <button onclick="upload()">请求上传</button>
+        <button onclick="uploadTrunks()">上传</button>
+        <button onclick="completeUpload()">请求合并</button>
+        <button onclick="cancelUpload()">取消</button>
+        <button onclick="handleTest()">测试接口</button>
+        <button onclick="testTrunkUpload()">分片测时上传</button>
+        <button onclick="testSingleUpload()">测试单文件上传</button>
+    </div>
+    <div class="progressDiv">
         <label for="progressBar">上传进度：</label>
         <progress id="progressBar" value="0" max="100"></progress>
         <span id="progressText">0%</span>
+    </div>
+    <div class="output">
+        <div id="chunk-output">测试结果...</div>
+        <div id="single-output">测试结果...</div>
     </div>
     <script>
         let uploadId = "";
@@ -27,6 +64,13 @@
         let cnt = 0;
         let file = null
         let fileReader = null
+
+        function resetProgress() {
+            let progressBar = document.getElementById('progressBar')
+            let progressText = document.getElementById('progressText')
+            progressBar.value = 0
+            progressText.textContent = 0 + '%'
+        }
 
         function updateProgress() {
             cnt++;
@@ -141,7 +185,35 @@
                 .then(response => response.json())
                 .then(res => {
                     alert(res.data);
-                });
+                })
+                .catch( e=> {
+                    alert('connnection error')
+                })
+        }
+
+        async function testTrunkUpload() {
+            // 检查文件是否选择
+            if (!file) {
+                alert('please choose file to upload first')
+                return
+            }
+            const startTime = performance.now()
+            await upload()
+            await uploadTrunks()
+            await completeUpload()
+            const endTime = performance.now()
+            // 显示运行结果
+            let output = document.getElementById('chunk-output')
+            output.textContent = `
+                                测试文件大小: ${file.size} 分片大小: ${CHUNK_SIZE} 上传时间: ${(endTime - startTime) / 1000}s
+                                ` 
+        }
+
+        async function testSingleUpload() {
+            if (!file) {
+                alert('please choose file to upload first')
+                return
+            }
         }
     </script>
 </body>

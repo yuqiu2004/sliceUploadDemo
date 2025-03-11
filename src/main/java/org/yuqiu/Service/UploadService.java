@@ -86,4 +86,8 @@ public class UploadService {
         minioUtil.abortMultipartUpload(uploadId, objectName);
         return "CANCEL SUCCESS";
     }
+
+    public Map<String, String> getSingleUploadUrl(String objectName, String contentType) {
+        return minioUtil.getFileUploadUrl(objectName, contentType);
+    }
 }

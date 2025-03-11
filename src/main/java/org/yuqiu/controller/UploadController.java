@@ -45,6 +45,11 @@ public class UploadController {
         return Result.success(uploadService.cancel(uploadId, objectName));
     }
 
+    @GetMapping("/getUploadUrl")
+    public Result getUploadUrl(@RequestParam String objectName, @RequestParam String contentType) {
+        return Result.success(uploadService.getSingleUploadUrl(objectName, contentType));
+    }
+
     @GetMapping("/test")
     public Result test(String str) {
         return Result.success("hello, " + str);

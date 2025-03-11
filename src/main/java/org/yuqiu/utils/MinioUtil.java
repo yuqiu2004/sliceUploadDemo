@@ -1,21 +1,16 @@
 package org.yuqiu.utils;
 
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import io.minio.CreateMultipartUploadResponse;
 import io.minio.GetPresignedObjectUrlArgs;
 import io.minio.ListPartsResponse;
-import io.minio.ObjectWriteResponse;
-import io.minio.errors.*;
 import io.minio.http.Method;
 import io.minio.messages.Part;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Component;
 import org.yuqiu.conf.MinioProperties;
 import org.yuqiu.conf.SliceMinioClient;
-
-import java.io.IOException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
 @Component
@@ -118,5 +113,28 @@ public class MinioUtil {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public Map<String, String> getFileUploadUrl(String objectName, String contentType) {
+        HashMap<String, String> map = new HashMap<>();
+        Multimap<String, String> headers = ArrayListMultimap.create();
+        headers.put("Content-Type", contentType);
+        String presignedObjectUrl = null;
+        int idx = objectName.lastIndexOf(".");
+        objectName = objectName.substring(0, idx) + "-" + UUID.randomUUID().toString() + objectName.substring(idx);
+        try {
+            presignedObjectUrl = minioClient.getPresignedObjectUrl(GetPresignedObjectUrlArgs.builder()
+                    .method(Method.PUT)
+                    .bucket(minioProperties.getBucketName())
+                    .object(objectName)
+                    .expiry(60 * 60 * 24)
+                    .extraQueryParams(headers)
+                    .build());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        map.put("url", presignedObjectUrl);
+        map.put("objectName", objectName);
+        return map;
     }
 }

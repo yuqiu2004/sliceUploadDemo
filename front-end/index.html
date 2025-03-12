@@ -91,40 +91,35 @@
             file = fileInput.files[0];
             const trunk = Math.ceil(file.size / CHUNK_SIZE) - 1;
             totalTrunk = trunk;
-            fileReader = new FileReader();
-            
-            // 使用 Promise 来处理文件读取和哈希生成
-            fileReader.onload = async function() {
-                const fileHash = file.name
-                const uploadDTO = {
-                    fileName: file.name,
-                    fileHash: fileHash,
-                    trunk,
-                    contentType: file.type
-                };
-                
-                try {
-                    const response = await fetch(`${API_BASE_URL}/upload/multipart/prepare`, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify(uploadDTO)
-                    });
-                    
-                    const res = await response.json();
-                    uploadId = res.data.uploadId;
-                    objectName = res.data.objectName;
-                    trunkMap = res.data.trunkMap;
-                    console.log(res.data)
-                } catch (error) {
-                    console.error("上传失败:", error);
-                    alert("文件上传失败，请重试。");
-                }
+            const fileHash = file.name
+            const uploadDTO = {
+                fileName: file.name,
+                fileHash: fileHash,
+                trunk,
+                contentType: file.type
             };
-            fileReader.readAsArrayBuffer(file);
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/upload/multipart/prepare`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(uploadDTO)
+                });
+                
+                const res = await response.json();
+                uploadId = res.data.uploadId;
+                objectName = res.data.objectName;
+                trunkMap = res.data.trunkMap;
+                console.log(res.data)
+            } catch (error) {
+                console.error("上传失败:", error);
+                alert("文件上传失败，请重试。");
+            }
         }
 
         async function uploadTrunks() {
             let map = new Map(Object.entries(trunkMap))
+            const promises = []
             for (let i = 0; i < totalTrunk; i++) {
                 if (map.has(`${i+1}`)) {
                     let start = i * CHUNK_SIZE
@@ -133,7 +128,7 @@
                     let chunk = file.slice(start, end)
                     let url = map.get(`${i+1}`)
                     // console.log(url)
-                    fetch(url, {
+                    promises.push(fetch(url, {
                         method: "PUT",
                         headers: { "Content-Type": "application/octet-stream" },
                         body: chunk
@@ -141,9 +136,10 @@
                     .then(response => updateProgress())
                     .catch(e => {
                         alert(e)
-                    })
+                    }))
                 }
             }
+            await Promise.all(promises)
         }
 
         async function uploadSimulation() {
@@ -158,13 +154,13 @@
             return new Promise(resolve => setTimeout(resolve, ms));
         }
 
-        function completeUpload() {
+        async function completeUpload() {
             if (!uploadId || !objectName) {
                 alert("请先上传文件");
                 return;
             }
             
-            fetch(`${API_BASE_URL}/upload/multipart/complete?uploadId=${uploadId}&objectName=${objectName}`)
+            await fetch(`${API_BASE_URL}/upload/multipart/complete?uploadId=${uploadId}&objectName=${objectName}`)
                 .then(() => alert("上传合并完成"));
         }
 
@@ -192,11 +188,6 @@
         }
 
         async function testTrunkUpload() {
-            // 检查文件是否选择
-            if (!file) {
-                alert('please choose file to upload first')
-                return
-            }
             const startTime = performance.now()
             await upload()
             await uploadTrunks()
@@ -205,7 +196,7 @@
             // 显示运行结果
             let output = document.getElementById('chunk-output')
             output.textContent = `
-                                测试文件大小: ${file.size} 分片大小: ${CHUNK_SIZE} 上传时间: ${(endTime - startTime) / 1000}s
+                                测试文件大小: ${file.size / 1024 / 1024}MB 分片大小: ${CHUNK_SIZE / 1024 / 1024}MB 上传时间: ${(endTime - startTime) / 1000}s
                                 ` 
         }
 
@@ -229,17 +220,19 @@
         }
 
         async function testSingleUpload() {
-            if (!file) {
-                alert('please choose file to upload first')
-                return
+            const fileInput = document.getElementById("fileInput");
+            if (!fileInput.files.length) {
+                alert("请选择一个文件");
+                return;
             }
+            file = fileInput.files[0];
             const startTime = performance.now()
             await uploadSingleFile()
             const endTime = performance.now()
             // 显示运行结果
             let output = document.getElementById('single-output')
             output.textContent = `
-                                测试文件大小: ${file.size} 分片大小: ${CHUNK_SIZE} 上传时间: ${(endTime - startTime) / 1000}s
+                                测试文件大小: ${file.size / 1024 / 1024} MB  上传时间: ${(endTime - startTime) / 1000}s
                                 ` 
         }
     </script>

@@ -13,18 +13,27 @@
 
 ### 测试结果
 
-截图一:
-<img src="./assets/test1.png" alt="测试结果1">
-截图二:
-<img src="./assets/test2.png" alt="测试结果2">
-浏览器监听截图:
-<img src="./assets/chunks.png" alt="网络情况">
+<figure>
+   <figcaption>截图一</figcaption>
+   <img src="./assets/test1.png" alt="测试结果1">
+</figure>
+
+<figure>
+   <figcaption>截图二</figcaption>
+   <img src="./assets/test2.png" alt="测试结果1">
+</figure>
+
+<figure>
+   <figcaption>浏览器监听截图</figcaption>
+   <img src="./assets/chunks.png" alt="网络情况">
+</figure>
 
 图一、图二为两次上传的测试截图，图三为测试的浏览器网络截图，~~以增强测试的真实性~~
 
 由此大概得到
-1. 对于一个**142MB**大小的视频，分片方式速度的提升为**44.58%**左右 具体数值为**11.208s**
-2. 对于一个**1202MB**大小的视频，分片方式速度的提升为**46.79%**左右 具体数值为**92.381s**
+
+1. 对于一个 **142MB** 大小的视频，分片方式速度的提升为 **44.58%** 左右，具体数值为 **11.208s** 。
+2. 对于一个 **1202MB** 大小的视频，分片方式速度的提升为 **46.79%** 左右，具体数值为 **92.381s** 。
 
 ## 项目结构
 

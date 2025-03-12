@@ -3,6 +3,26 @@
 [参考文章1](https://juejin.cn/post/7213275960900632632)
 [参考文章2](https://juejin.cn/post/7039554714077233189)
 
+## 测试结果
+
+### 测试环境
+
+- html page : vscode live server
+- api : local idea(win11) debug mode
+- minio server : AliYun CentOS 7.9 / 2核(vCPU) 2 GiB / 3Mbps
+
+### 测试结果
+
+<img src="./assets/test1.png" alt="测试结果1">
+<img src="./assets/test2.png" alt="测试结果2">
+<img src="./assets/chunks.png" alt="网络情况">
+
+图一、图二为两次上传的测试截图，图三为测试的浏览器网络截图，~~以增强测试的真实性~~
+
+由此大概得到
+1. 对于一个142MB大小的视频，分片方式速度的提升为44.58%左右 具体数值为11.208s
+2. 对于一个1202MB大小的视频，分片方式速度的提升为46.79%左右 具体数值为92.381s
+
 ## 项目结构
 
 1. front-end - html测试目录 直接打开 更改对应的接口地址即可测试
